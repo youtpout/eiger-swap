@@ -89,12 +89,43 @@ contract EigerSwap is ERC20Swapper, Ownable {
             : (expectedAmountOut, uint(0));
 
         // call swap with expected out, we put sender as direct receiver, and bytes(0) because is not a flash swap
-        IUniswapV2Pair(pair).swap(
+        /* IUniswapV2Pair(pair).swap(
             amount0Out,
             amount1Out,
             msg.sender,
             new bytes(0)
-        );
+        );*/
+
+        bytes4 swapSignature = IUniswapV2Pair.swap.selector;
+        // assembly just for the style, saw is a plus for the job
+        assembly {
+            // 0x40 is the first slot freely available for memory storage
+            let ptr := mload(0x40)
+            // first parameter is the method signature, use 4bytes of storage
+            mstore(ptr, swapSignature)
+            // other parameters will use 0x20 or 32 bytes of storage (0x20 = 32)
+            mstore(add(ptr, 0x4), amount0Out)
+            mstore(add(ptr, 0x24), amount1Out)
+            // caller() is msg.sender()
+            mstore(add(ptr, 0x44), caller())
+            // call external function
+            // first parameter the gas limit, gas() is the actual gas left
+            // second is the contract address
+            // third is the wei to send (0 in our case)
+            // fourth is the memory pointer position read for parameter
+            // fifth is the size of memory parameters (0x64 for 4 bytes signatures + 0x60 for 3 parameters in)
+            // sixth is the memory pointer address where store function return value (the function return nothing so we will use 0)
+            // seventh is the size of the return value (the function return nothing so we will use 0)
+            // result is 0 if call failed or 1 if succeed
+            let result := call(gas(), pair, 0, ptr, 0x64, 0, 0)
+
+            // check if call was succesfull, else revert
+            if iszero(result) {
+                // the error was return has data, we just need to throw it
+                returndatacopy(0, 0, returndatasize())
+                revert(0, returndatasize())
+            }
+        }
 
         uint256 balanceAfter = tokenOut.balanceOf(msg.sender);
 

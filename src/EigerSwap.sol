@@ -5,7 +5,6 @@ import {ERC20Swapper} from "./interfaces/ERC20Swapper.sol";
 import {IUniswapV2Factory} from "./interfaces/IUniswapV2Factory.sol";
 import {IUniswapV2Pair} from "./interfaces/IUniswapV2Pair.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {UniswapV2Library} from "./libraries/UniswapV2Library.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {TransferHelper} from "./libraries/TransferHelper.sol";
 import {IWETH} from "./interfaces/IWETH.sol";
@@ -65,8 +64,8 @@ contract EigerSwap is ERC20Swapper, Ownable {
         (uint112 res0, uint112 res1, ) = IUniswapV2Pair(pair).getReserves();
 
         uint256 expectedAmountOut = weth < token
-            ? UniswapV2Library.getAmountOut(msg.value, res0, res1)
-            : UniswapV2Library.getAmountOut(msg.value, res1, res0);
+            ? getAmountOut(msg.value, res0, res1)
+            : getAmountOut(msg.value, res1, res0);
 
         if (expectedAmountOut < minAmount) {
             revert InsufficientOutputAmount(expectedAmountOut);
@@ -135,5 +134,23 @@ contract EigerSwap is ERC20Swapper, Ownable {
 
         // return the amount received by the user, cannot reflect reality in the case of tokens with reflection
         return amountReceived;
+    }
+
+    // remove uniswap v2 library due to bad unmatch init code hash
+    // given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
+    function getAmountOut(
+        uint amountIn,
+        uint reserveIn,
+        uint reserveOut
+    ) internal pure returns (uint amountOut) {
+        require(amountIn > 0, "UniswapV2Library: INSUFFICIENT_INPUT_AMOUNT");
+        require(
+            reserveIn > 0 && reserveOut > 0,
+            "UniswapV2Library: INSUFFICIENT_LIQUIDITY"
+        );
+        uint amountInWithFee = amountIn * 997;
+        uint numerator = amountInWithFee * reserveOut;
+        uint denominator = reserveIn * 1000 + amountInWithFee;
+        amountOut = numerator / denominator;
     }
 }

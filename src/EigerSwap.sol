@@ -6,7 +6,6 @@ import {IUniswapV2Factory} from "./interfaces/IUniswapV2Factory.sol";
 import {IUniswapV2Pair} from "./interfaces/IUniswapV2Pair.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {TransferHelper} from "./libraries/TransferHelper.sol";
 import {IWETH} from "./interfaces/IWETH.sol";
 
 contract EigerSwap is ERC20Swapper, Ownable {

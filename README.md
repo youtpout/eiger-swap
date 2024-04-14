@@ -1,3 +1,8 @@
+## Contract
+[EigerSwap 0xA921352173fE5bF4cd1CBcfb1AA280932865560f](https://sepolia.etherscan.io/address/0xA921352173fE5bF4cd1CBcfb1AA280932865560f)
+
+Create .env file base on .env example to deploy the contract
+
 ## Foundry
 
 **Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
@@ -50,8 +55,7 @@ $ anvil
 ### Deploy
 
 ```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
+$ forge script script/Deployer.s.sol:DeployerScript --rpc-url sepolia --broadcast --verify -vvvv
 
 ### Cast
 

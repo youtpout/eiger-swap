@@ -108,10 +108,8 @@ contract EigerSwap is ERC20Swapper, Ownable {
             mstore(add(ptr, 0x24), amount1Out)
             // caller() is msg.sender()
             mstore(add(ptr, 0x44), caller())
-            // calldata store position
-            mstore(add(ptr, 0x64), 0x0)
-            // bytes(0) because is not a flash swap
-            mstore(add(ptr, 0x84), 0x0)
+            // calldata store position, 0x80 position of where length of "bytes data" is stored from first arg (excluding func signature)
+            mstore(add(ptr, 0x64), 0x80)
             // call external function
             // first parameter the gas limit, gas() is the actual gas left
             // second is the contract address

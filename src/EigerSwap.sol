@@ -11,7 +11,7 @@ import {TransferHelper} from "./libraries/TransferHelper.sol";
 import {IWETH} from "./interfaces/IWETH.sol";
 
 contract EigerSwap is ERC20Swapper, Ownable {
-    address immutable weth;
+    address public immutable weth;
     address public factory;
 
     error WethNotDefined();
@@ -62,14 +62,11 @@ contract EigerSwap is ERC20Swapper, Ownable {
         path[0] = weth;
         path[1] = token;
 
-        // use uniswap v2 library (can be optimized if we call directly getAmountOut with reserves)
-        uint256[] memory amounts = UniswapV2Library.getAmountsOut(
-            factory,
-            msg.value,
-            path
-        );
+        (uint112 res0, uint112 res1, ) = IUniswapV2Pair(pair).getReserves();
 
-        uint256 expectedAmountOut = amounts[amounts.length - 1];
+        uint256 expectedAmountOut = weth < token
+            ? UniswapV2Library.getAmountOut(msg.value, res0, res1)
+            : UniswapV2Library.getAmountOut(msg.value, res1, res0);
 
         if (expectedAmountOut < minAmount) {
             revert InsufficientOutputAmount(expectedAmountOut);

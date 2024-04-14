@@ -11,8 +11,8 @@ contract DeployerScript is Script {
 
     function run() public {
         // sepolia address
-        address wEth = 0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14;
-        address factory = 0xB7f907f7A9eBC822a80BD25E224be42Ce0A698A0;
+        address wEth = 0x7b79995e5f793A07Bc00c21412e50Ecae098E7f9;
+        address factory = 0x7E0987E5b3a30e3f2828572Bb659A548460a3003;
 
         deployerPrivateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);

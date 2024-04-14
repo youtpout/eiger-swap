@@ -57,10 +57,6 @@ contract EigerSwap is ERC20Swapper, Ownable {
             revert NoPairFound();
         }
 
-        address[] memory path = new address[](2);
-        path[0] = weth;
-        path[1] = token;
-
         (uint112 res0, uint112 res1, ) = IUniswapV2Pair(pair).getReserves();
 
         uint256 expectedAmountOut = weth < token
@@ -77,7 +73,7 @@ contract EigerSwap is ERC20Swapper, Ownable {
 
         // we transfer weth to the pair to execute swap
         IWETH(weth).deposit{value: msg.value}();
-        TransferHelper.safeTransfer(IERC20(weth), pair, msg.value);
+        IERC20(weth).transfer(pair, msg.value);
 
         // define if it's amount0 or amount1 who out based on token address
         (uint amount0Out, uint amount1Out) = weth < token
